@@ -1,7 +1,7 @@
 import csv
 
-def openFile():
-    with open("CSV/planEncaissageLessonia.csv", newline='') as csvfile:
+def openFile(filepath):
+    with open(filepath, newline='') as csvfile:
         spamReader = csv.reader(csvfile, delimiter=';', quotechar='|')
         data = []
         for row in spamReader:
@@ -21,6 +21,6 @@ def CheckDataPlace(data):
     print("FILE OK!")
     return 0
 
-def checkFile(event):
-    data = openFile()
+def checkFile(filepath, event):
+    data = openFile(filepath)
     CheckDataPlace(data)
