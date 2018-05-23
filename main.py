@@ -113,7 +113,7 @@ F_choice.pack()
 
 B_close.pack()
 
-#Fenetre
+# Fenetre
 root.mainloop()
 
 
