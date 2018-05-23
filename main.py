@@ -1,9 +1,5 @@
-import io
-from check import checkFile
-from create import createFile
-from tkinter import Frame, Button, Listbox, Tk, Label, Spinbox
-from tkinter import FLAT, GROOVE, SUNKEN, LEFT, RIGHT
-from tkinter.filedialog import askopenfile
+from tkinter import FLAT, GROOVE, SUNKEN, RIGHT
+from tkinter import Frame, Button, Tk, Label, Spinbox
 
 root = Tk()
 
@@ -17,6 +13,11 @@ class createPlan:
     layerProduct_Y = 0
     nbrProduct = 0
     halfLayer = 0
+
+def createFile(plan):
+    print(plan)
+    print("I'm create file")
+
 
 # Get information for box plan
 def getInfo(event):
@@ -32,15 +33,8 @@ def getInfo(event):
     createFile(plan)
 
 
-# filepath
-def getFile(event):
-    filepath = askopenfile(title="Ouvrir un csv", filetypes=[('csv files','.csv'),('all files','.*')])
-    if filepath !=None:
-        Li_file.insert(1,filepath.name)
-
 # Frame
 F_choice = Frame(root, bg="white", borderwidth=2, relief=FLAT)
-F_verify = Frame(F_choice, borderwidth=2, relief=GROOVE)
 F_create = Frame(F_choice, borderwidth=2, relief=SUNKEN)
 F_product = Frame(F_create, borderwidth=2, relief=SUNKEN)
 F_box = Frame(F_create,  borderwidth=2, relief=GROOVE)
@@ -76,22 +70,11 @@ L_yLayerProduct = Label(F_layerProduct, text="Y:")
 
 
 # Button
-B_openFile = Button(F_verify, text="ouvrir")
-B_verify = Button(F_verify, text="verifier")
 B_create = Button(F_create, text="generer")
 B_close = Button(root, text="fermer", command=root.quit)
 
-# Liste
-Li_file = Listbox(F_verify)
-
 # Generation Graphique
 L_titre.pack()
-B_openFile.bind("<Button-1>",getFile)
-B_openFile.pack()
-Li_file.pack()
-F_verify.pack(side=LEFT, padx=30, pady=30)
-B_verify.bind("<Button-1>", lambda event : checkFile(Li_file.get(Li_file.curselection()), event))
-B_verify.pack()
 
 F_product.pack()
 L_product.pack()
