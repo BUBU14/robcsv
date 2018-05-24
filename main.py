@@ -221,7 +221,7 @@ SB_nbrProduct.pack()
 F_halfLayer.pack()
 L_halfLayer.pack()
 SB_halfLayer.pack()
-
+I_nameCSV.bind("<Return>", main)
 I_nameCSV.pack()
 F_create.pack(side=RIGHT, padx=30, pady=30)
 B_create.bind("<Button-1>", main)
