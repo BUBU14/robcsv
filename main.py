@@ -1,6 +1,8 @@
+import string
 from tkinter import FLAT, GROOVE, SUNKEN, RIGHT
-from tkinter import Frame, Button, Tk, Label, Spinbox
-import math
+from tkinter import Frame, Button, Tk, Label, Spinbox, Entry, StringVar
+import csv
+
 root = Tk()
 
 
@@ -63,24 +65,36 @@ def setLayer(gInf, cInf):
     zLayer = []
     rAngle = []
     App = []
-
+    value = []
     deltaX = cInf.xDelta / (gInf.layerProduct_X - 1)
     deltaY = cInf.yDelta / (gInf.layerProduct_Y - 1)
 
     tmp_zLayer = 0
+
     for i in range(gInf.halfLayer):
         print("--------------", i+1, "couches --------------")
-        tmp_yLayer = cInf.yStart
+        tmp_yLayer = int(cInf.yStart)
         for j in range(gInf.layerProduct_Y):
             print("-------", j+1, "Lignes -------" )
-            tmp_xLayer = cInf.xStart
+            tmp_xLayer = int(cInf.xStart)
             for k in range(gInf.layerProduct_X):
+                row = []
                 tmp_app = getApp(j,k,gInf)
                 tmp_angle = getAngle(i)
-                print("[",tmp_xLayer,",",tmp_yLayer,",",tmp_zLayer,",",tmp_angle,",",tmp_app,"]")
+                print(str(tmp_xLayer)+ "," + str(tmp_yLayer)+ ","+ str(tmp_zLayer)+ ","+str(tmp_angle)+ "," +str(tmp_app))
+                row.append(tmp_xLayer)
+                row.append(tmp_yLayer)
+                row.append(tmp_zLayer)
+                row.append(tmp_angle)
+                row.append(tmp_app)
                 tmp_xLayer = tmp_xLayer + deltaX
+                value.append(row)
+
             tmp_yLayer = int(tmp_yLayer + deltaY)
         tmp_zLayer = tmp_zLayer + gInf.Z_product
+
+    return value
+
 
 def getAngle(i):
     if (i%2==0):
@@ -88,36 +102,45 @@ def getAngle(i):
     else :
         return -90
 
-def getApp(j,k,gInf):
+
+def getApp(j, k, g):
     if k == 0:
         if j == 0:
             x = 2
-        elif j == (gInf.layerProduct_Y - 1):
+        elif j == (g.layerProduct_Y - 1):
             x = 4
         else:
             x = 7
 
-    elif k == (gInf.layerProduct_X - 1):
+    elif k == (g.layerProduct_X - 1):
         if j == 0:
             x = 8
-        elif j == (gInf.layerProduct_Y - 1):
+        elif j == (g.layerProduct_Y - 1):
             x = 6
         else:
             x = 3
     else:
         if j == 0:
             x = 1
-        elif j == (gInf.layerProduct_Y - 1):
+        elif j == (g.layerProduct_Y - 1):
             x = 5
         else:
             x = 0
     return x
 
+def setCSV(r):
+
+    print(r)
+    name = I_nameCSV.get() + ".csv"
+    with open(name, "w") as f_write :
+        writer = csv.writer(f_write)
+        writer.writerows(r)
+
 def main(event):
     generalInfo = getGeneralInfo()
     calculInfo = getCalculInfo(generalInfo)
-    setLayer(generalInfo, calculInfo)
-
+    result = setLayer(generalInfo, calculInfo)
+    setCSV(result)
 
 # Frame
 F_choice = Frame(root, bg="white", borderwidth=2, relief=FLAT)
@@ -159,6 +182,12 @@ L_yLayerProduct = Label(F_layerProduct, text="Y:")
 B_create = Button(F_create, text="generer")
 B_close = Button(root, text="fermer", command=root.quit)
 
+# Input
+value = StringVar()
+value.set("nom du fichier")
+I_nameCSV = Entry(F_create, textvariable=value, width=30)
+
+
 # Generation Graphique
 L_titre.pack()
 
@@ -193,6 +222,7 @@ F_halfLayer.pack()
 L_halfLayer.pack()
 SB_halfLayer.pack()
 
+I_nameCSV.pack()
 F_create.pack(side=RIGHT, padx=30, pady=30)
 B_create.bind("<Button-1>", main)
 B_create.pack()
