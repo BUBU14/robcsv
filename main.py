@@ -2,6 +2,7 @@ import string
 from tkinter import FLAT, GROOVE, SUNKEN, RIGHT
 from tkinter import Frame, Button, Tk, Label, Spinbox, Entry, StringVar
 import csv
+import numpy as np
 
 root = Tk()
 
@@ -29,9 +30,8 @@ class generateData:
     yEnd = 0
 
 
-# Calculerdes information
+# Calculer information
 def getCalculInfo(gInfo):
-    print("I'm create file")
     cData = generateData
     cData.xDelta = gInfo.X_box - gInfo.X_product
     cData.yDelta = gInfo.Y_box - gInfo.Y_product
@@ -42,7 +42,7 @@ def getCalculInfo(gInfo):
     return cData
 
 
-# Recuperer les informations
+# Recuperer informations
 def getGeneralInfo():
     iPro = giveData
     iPro.X_product = int(SB_xProduct.get())
@@ -60,42 +60,40 @@ def getGeneralInfo():
 
 # Creation d'une couche
 def setLayer(gInf, cInf):
-    xLayer = []
-    yLayer = []
-    zLayer = []
-    rAngle = []
-    App = []
     value = []
+    tmp_dataCSV = []
+    tmp_dataTXT = []
     deltaX = cInf.xDelta / (gInf.layerProduct_X - 1)
     deltaY = cInf.yDelta / (gInf.layerProduct_Y - 1)
 
     tmp_zLayer = 0
-
+    n = 1
     for i in range(gInf.halfLayer):
-        print("--------------", i+1, "couches --------------")
         tmp_yLayer = int(cInf.yStart)
         for j in range(gInf.layerProduct_Y):
-            print("-------", j+1, "Lignes -------" )
             tmp_xLayer = int(cInf.xStart)
             for k in range(gInf.layerProduct_X):
                 row = []
                 tmp_app = getApp(j,k,gInf)
                 tmp_angle = getAngle(i)
-                print(str(tmp_xLayer)+ "," + str(tmp_yLayer)+ ","+ str(tmp_zLayer)+ ","+str(tmp_angle)+ "," +str(tmp_app))
                 row.append(tmp_xLayer)
                 row.append(tmp_yLayer)
                 row.append(tmp_zLayer)
                 row.append(tmp_angle)
                 row.append(tmp_app)
                 tmp_xLayer = tmp_xLayer + deltaX
-                value.append(row)
-
+                tmp_string = ("PERS patternpos pl_pat_pos" + str(n) + ":=[[" + str(tmp_xLayer) + "," + str(tmp_yLayer) + "," + str(tmp_zLayer) + "]," + str(tmp_angle) + "," + str(tmp_app) + "];")
+                tmp_dataCSV.append(row)
+                tmp_dataTXT.append(tmp_string)
+                n += 1
             tmp_yLayer = int(tmp_yLayer + deltaY)
         tmp_zLayer = tmp_zLayer + gInf.Z_product
-
+    value.append(tmp_dataTXT)
+    value.append(tmp_dataCSV)
     return value
 
 
+# definition de l'angle du produit
 def getAngle(i):
     if (i%2==0):
         return 90
@@ -103,6 +101,7 @@ def getAngle(i):
         return -90
 
 
+# definition de l'approche robot à avoir
 def getApp(j, k, g):
     if k == 0:
         if j == 0:
@@ -128,19 +127,31 @@ def getApp(j, k, g):
             x = 0
     return x
 
-def setCSV(r):
 
-    print(r)
-    name = I_nameCSV.get() + ".csv"
+# création d'un fichier CSV
+def setCSV(r):
+    name = I_name.get() + ".csv"
     with open(name, "w") as f_write :
         writer = csv.writer(f_write)
         writer.writerows(r)
+
+
+# création d'un fichier TXT
+def setTXT(r):
+    name = I_name.get() + ".txt"
+    file = open(name,'w')
+    for item in r:
+        print(item,file=file)
+    file.close()
+
 
 def main(event):
     generalInfo = getGeneralInfo()
     calculInfo = getCalculInfo(generalInfo)
     result = setLayer(generalInfo, calculInfo)
-    setCSV(result)
+    setCSV(result[1])
+    setTXT(result[0])
+
 
 # Frame
 F_choice = Frame(root, bg="white", borderwidth=2, relief=FLAT)
@@ -183,10 +194,9 @@ B_create = Button(F_create, text="generer")
 B_close = Button(root, text="fermer", command=root.quit)
 
 # Input
-value = StringVar()
-value.set("nom du fichier")
-I_nameCSV = Entry(F_create, textvariable=value, width=30)
-
+nameFile = StringVar()
+nameFile.set("filename")
+I_name = Entry(F_create, textvariable=nameFile, width=30)
 
 # Generation Graphique
 L_titre.pack()
@@ -221,8 +231,8 @@ SB_nbrProduct.pack()
 F_halfLayer.pack()
 L_halfLayer.pack()
 SB_halfLayer.pack()
-I_nameCSV.bind("<Return>", main)
-I_nameCSV.pack()
+I_name.bind("<Return>", main)
+I_name.pack()
 F_create.pack(side=RIGHT, padx=30, pady=30)
 B_create.bind("<Button-1>", main)
 B_create.pack()
